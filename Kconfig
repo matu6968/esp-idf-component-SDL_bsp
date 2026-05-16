@@ -2,7 +2,7 @@ menu "ESP-BSP SDL Configuration"
 
     choice SDL_BSP_SELECTION
         prompt "Select Target Board"
-        default SDL_BSP_ESP_BOX_3
+        default SDL_BSP_AXS15231B
         help
             Select the target board for your SDL application.
             This determines which ESP-BSP will be used and configures
@@ -50,6 +50,11 @@ menu "ESP-BSP SDL Configuration"
                 GT911 touch controller, and high-performance hardware. 
                 Requires 200MHz PSRAM for proper operation.
 
+        config SDL_BSP_AXS15231B
+            bool "AXS15231B QSPI 320x480 (Scratch S3 board)"
+            help
+                320x480 QSPI panel with integrated AXS15231B touch (Scratch Everywhere S3 dev board).
+
     endchoice
 
     config NAME
@@ -75,6 +80,7 @@ menu "ESP-BSP SDL Configuration"
         default "esp32_p4_function_ev_board" if SDL_BSP_ESP32_P4_FUNCTION_EV
         default "esp32_s3_lcd_ev_board" if SDL_BSP_ESP32_S3_LCD_EV_BOARD
         default "m5stack_tab5" if SDL_BSP_M5STACK_TAB5
+        default "axs15231b" if SDL_BSP_AXS15231B
 
     config SDL_BSP_TOUCH_ENABLE
         bool "Enable Touch Support"
@@ -84,5 +90,71 @@ menu "ESP-BSP SDL Configuration"
             This is disabled by default since some boards may have complex touch
             initialization that could interfere with the application.
             Only enable this if your application needs touch input.
+
+    menu "AXS15231B pin map"
+        depends on SDL_BSP_AXS15231B
+
+        config SDL_BSP_AXS_LCD_H_RES
+            int "Horizontal resolution"
+            default 320
+
+        config SDL_BSP_AXS_LCD_V_RES
+            int "Vertical resolution"
+            default 480
+
+        config SDL_BSP_AXS_LCD_PIN_CS
+            int "LCD CS GPIO"
+            default 45
+
+        config SDL_BSP_AXS_LCD_PIN_SCLK
+            int "LCD SCLK GPIO"
+            default 47
+
+        config SDL_BSP_AXS_LCD_PIN_MOSI
+            int "LCD MOSI / QSPI DATA0 GPIO"
+            default 21
+
+        config SDL_BSP_AXS_LCD_QSPI_DATA1
+            int "QSPI DATA1 GPIO"
+            default 48
+
+        config SDL_BSP_AXS_LCD_QSPI_DATA2
+            int "QSPI DATA2 GPIO"
+            default 40
+
+        config SDL_BSP_AXS_LCD_QSPI_DATA3
+            int "QSPI DATA3 GPIO"
+            default 39
+
+        config SDL_BSP_AXS_LCD_PIN_RST
+            int "LCD RST GPIO (-1 if unused)"
+            default -1
+
+        config SDL_BSP_AXS_LCD_PIN_BLK
+            int "Backlight GPIO (-1 to skip)"
+            default 1
+
+        config SDL_BSP_AXS_LCD_BLK_ON_LEVEL
+            int "Backlight ON level (0 or 1)"
+            default 1
+            range 0 1
+
+        config SDL_BSP_AXS_TOUCH_PIN_SCL
+            int "Touch I2C SCL GPIO"
+            default 8
+
+        config SDL_BSP_AXS_TOUCH_PIN_SDA
+            int "Touch I2C SDA GPIO"
+            default 4
+
+        config SDL_BSP_AXS_TOUCH_PIN_INT
+            int "Touch INT GPIO (-1 if unused)"
+            default -1
+
+        config SDL_BSP_AXS_TOUCH_PIN_RST
+            int "Touch RST GPIO (-1 if unused)"
+            default -1
+
+    endmenu
 
 endmenu

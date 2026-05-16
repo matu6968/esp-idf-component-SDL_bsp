@@ -13,6 +13,7 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
+#include "esp_lcd_touch.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -120,6 +121,13 @@ const char *esp_bsp_sdl_get_board_name(void);
  * @return ESP_OK on success, error code otherwise
  */
 esp_err_t esp_bsp_sdl_deinit(void);
+
+/**
+ * @brief Panel handles after init (valid for CONFIG_SDL_BSP_AXS15231B)
+ */
+esp_lcd_panel_handle_t esp_bsp_sdl_get_panel(void);
+esp_lcd_panel_io_handle_t esp_bsp_sdl_get_panel_io(void);
+esp_lcd_touch_handle_t esp_bsp_sdl_get_touch(void);
 
 #ifdef __cplusplus
 }

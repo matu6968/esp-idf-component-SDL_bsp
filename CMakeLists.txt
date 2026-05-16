@@ -25,13 +25,16 @@ elseif(CONFIG_SDL_BSP_ESP32_S3_LCD_EV_BOARD)
 elseif(CONFIG_SDL_BSP_M5STACK_TAB5)
     list(APPEND COMPONENT_SRCS "src/boards/esp_bsp_sdl_m5stack_tab5.c")
     message(STATUS "ESP-BSP SDL: Including M5Stack Tab5 source files")
+elseif(CONFIG_SDL_BSP_AXS15231B)
+    list(APPEND COMPONENT_SRCS "src/boards/esp_bsp_sdl_axs15231b.c" "src/driver/esp_lcd_axs15231b.c")
+    message(STATUS "ESP-BSP SDL: Including AXS15231B source files")
 else()
     message(WARNING "ESP-BSP SDL: No board selected in menuconfig!")
 endif()
 
 # Include only the required BSP dependencies - this is the minimum required
-set(COMPONENT_REQUIRES "esp_lcd")
-set(COMPONENT_PRIV_REQUIRES "espressif__esp_lcd_touch")
+set(COMPONENT_REQUIRES "esp_lcd" "driver" "espressif__esp_lcd_touch")
+set(COMPONENT_PRIV_REQUIRES "esp_driver_spi" "esp_driver_gpio" "esp_driver_i2c")
 
 # Conditional BSP selection to avoid symbol conflicts
 # Each board BSP is included separately to prevent function name conflicts
@@ -56,6 +59,8 @@ elseif(CONFIG_SDL_BSP_ESP32_S3_LCD_EV_BOARD)
 elseif(CONFIG_SDL_BSP_M5STACK_TAB5)
     list(APPEND COMPONENT_PRIV_REQUIRES "georgik__m5stack_tab5")
     message(STATUS "ESP-BSP SDL: Including M5Stack Tab5 BSP")
+elseif(CONFIG_SDL_BSP_AXS15231B)
+    message(STATUS "ESP-BSP SDL: AXS15231B uses built-in panel driver")
 else()
     message(WARNING "ESP-BSP SDL: No BSP dependency selected!")
 endif()
@@ -69,7 +74,7 @@ endif()
 # Register the component
 idf_component_register(
     SRCS ${COMPONENT_SRCS}
-    INCLUDE_DIRS "include"
+    INCLUDE_DIRS "include" "src/driver"
     REQUIRES ${COMPONENT_REQUIRES}
     PRIV_REQUIRES ${COMPONENT_PRIV_REQUIRES}
 )
@@ -87,6 +92,8 @@ elseif(CONFIG_SDL_BSP_ESP32_S3_LCD_EV_BOARD)
     message(STATUS "ESP-BSP SDL: Building for ESP32-S3-LCD-EV-Board (800x480, OCTAL PSRAM)")
 elseif(CONFIG_SDL_BSP_M5STACK_TAB5)
     message(STATUS "ESP-BSP SDL: Building for M5Stack Tab5 (1280x720, 32MB PSRAM, MIPI-DSI)")
+elseif(CONFIG_SDL_BSP_AXS15231B)
+    message(STATUS "ESP-BSP SDL: Building for AXS15231B (320x480 QSPI)")
 else()
     message(WARNING "ESP-BSP SDL: No specific board detected in configuration. Check menuconfig.")
 endif()

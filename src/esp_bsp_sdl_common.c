@@ -30,6 +30,12 @@ extern const esp_bsp_sdl_board_interface_t esp_bsp_sdl_esp32_s3_lcd_ev_board_int
 #ifdef CONFIG_SDL_BSP_M5STACK_TAB5
 extern const esp_bsp_sdl_board_interface_t esp_bsp_sdl_m5stack_tab5_interface;
 #endif
+#ifdef CONFIG_SDL_BSP_AXS15231B
+extern const esp_bsp_sdl_board_interface_t esp_bsp_sdl_axs15231b_interface;
+extern esp_lcd_panel_handle_t esp_bsp_sdl_axs15231b_panel(void);
+extern esp_lcd_panel_io_handle_t esp_bsp_sdl_axs15231b_panel_io(void);
+extern esp_lcd_touch_handle_t esp_bsp_sdl_axs15231b_touch(void);
+#endif
 
 static const esp_bsp_sdl_board_interface_t *s_current_board = NULL;
 
@@ -54,6 +60,9 @@ static const esp_bsp_sdl_board_interface_t *detect_board(void)
 #elif CONFIG_SDL_BSP_M5STACK_TAB5
     ESP_LOGI(TAG, "Detected board: M5Stack Tab5");
     return &esp_bsp_sdl_m5stack_tab5_interface;
+#elif CONFIG_SDL_BSP_AXS15231B
+    ESP_LOGI(TAG, "Detected board: AXS15231B");
+    return &esp_bsp_sdl_axs15231b_interface;
 #else
     ESP_LOGE(TAG, "No board configuration detected!");
     return NULL;
@@ -147,4 +156,31 @@ esp_err_t esp_bsp_sdl_deinit(void)
     esp_err_t ret = s_current_board->deinit();
     s_current_board = NULL;
     return ret;
+}
+
+esp_lcd_panel_handle_t esp_bsp_sdl_get_panel(void)
+{
+#ifdef CONFIG_SDL_BSP_AXS15231B
+    return esp_bsp_sdl_axs15231b_panel();
+#else
+    return NULL;
+#endif
+}
+
+esp_lcd_panel_io_handle_t esp_bsp_sdl_get_panel_io(void)
+{
+#ifdef CONFIG_SDL_BSP_AXS15231B
+    return esp_bsp_sdl_axs15231b_panel_io();
+#else
+    return NULL;
+#endif
+}
+
+esp_lcd_touch_handle_t esp_bsp_sdl_get_touch(void)
+{
+#ifdef CONFIG_SDL_BSP_AXS15231B
+    return esp_bsp_sdl_axs15231b_touch();
+#else
+    return NULL;
+#endif
 }
