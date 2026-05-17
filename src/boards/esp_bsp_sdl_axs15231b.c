@@ -30,6 +30,23 @@ static esp_lcd_panel_io_handle_t s_panel_io = NULL;
 static esp_lcd_touch_handle_t s_touch = NULL;
 static i2c_master_bus_handle_t s_i2c_bus = NULL;
 
+#if CONFIG_SDL_BSP_AXS_LCD_H_RES > CONFIG_SDL_BSP_AXS_LCD_V_RES
+static void axs15231b_process_coordinates(esp_lcd_touch_handle_t tp, uint16_t *x, uint16_t *y, uint16_t *strength,
+                                          uint8_t *point_num, uint8_t max_point_num)
+{
+    (void)tp;
+    (void)strength;
+    (void)max_point_num;
+    const int panel_w = CONFIG_SDL_BSP_AXS_LCD_V_RES;
+    for (int i = 0; i < *point_num; i++) {
+        const uint16_t rx = x[i];
+        const uint16_t ry = y[i];
+        x[i] = ry;
+        y[i] = (uint16_t)((panel_w - 1) - rx);
+    }
+}
+#endif
+
 static const axs15231b_lcd_init_cmd_t s_init_cmds[] = {
     {0xBB, (uint8_t[]){0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5A, 0xA5}, 8, 0},
     {0xA0, (uint8_t[]){0xC0, 0x10, 0x00, 0x02, 0x00, 0x00, 0x04, 0x3F, 0x20, 0x05, 0x3F, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00}, 17, 0},
@@ -162,6 +179,9 @@ static esp_err_t axs15231b_init(esp_bsp_sdl_display_config_t *config,
         .int_gpio_num = CONFIG_SDL_BSP_AXS_TOUCH_PIN_INT >= 0 ? CONFIG_SDL_BSP_AXS_TOUCH_PIN_INT : GPIO_NUM_NC,
         .levels.reset = 0,
         .levels.interrupt = 0,
+#if CONFIG_SDL_BSP_AXS_LCD_H_RES > CONFIG_SDL_BSP_AXS_LCD_V_RES
+        .process_coordinates = axs15231b_process_coordinates,
+#endif
     };
     if(i2c_new_master_bus(&i2c_cfg, &s_i2c_bus) == ESP_OK &&
        esp_lcd_new_panel_io_i2c(s_i2c_bus, &touch_io_cfg, &touch_io) == ESP_OK &&
@@ -228,16 +248,8 @@ static esp_err_t axs15231b_touch_read(esp_bsp_sdl_touch_info_t *touch_info)
         return ESP_OK;
     }
     touch_info->pressed = true;
-    const int raw_x = (int)x[0];
-    const int raw_y = (int)y[0];
-#if CONFIG_SDL_BSP_AXS_LCD_H_RES > CONFIG_SDL_BSP_AXS_LCD_V_RES
-    /* Native 320x480 touch -> logical 480x320 (inverse of SDL framebuffer ROT_90). */
-    touch_info->x = raw_y;
-    touch_info->y = (CONFIG_SDL_BSP_AXS_LCD_V_RES - 1) - raw_x;
-#else
-    touch_info->x = raw_x;
-    touch_info->y = raw_y;
-#endif
+    touch_info->x = (int)x[0];
+    touch_info->y = (int)y[0];
     return ESP_OK;
 }
 
